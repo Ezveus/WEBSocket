@@ -1,4 +1,4 @@
 source 'https://rubygems.org'
 
-# Specify your gem's dependencies in WEBSocket.gemspec
+gem "websocket", "~> 1.0.6"
 gemspec
