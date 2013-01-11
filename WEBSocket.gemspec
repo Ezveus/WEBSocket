@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
 Establish a websocket communication using Ruby standard sockets or Celluloid::IO sockets if required.
 EOS
   gem.summary       = %q{Establish a websocket communication}
-  gem.homepage      = "https://github.com/Ezveus/ruby-websocket"
+  gem.homepage      = "https://github.com/Ezveus/WEBSocket"
 
   gem.files         = `git ls-files`.split($/)
   gem.executables   = gem.files.grep(%r{^bin/}).map{ |f| File.basename(f) }
