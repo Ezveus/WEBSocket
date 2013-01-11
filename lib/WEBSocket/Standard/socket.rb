@@ -1,16 +1,12 @@
 module WEBSocket
   class Socket
+    extend Forwardable
     attr_reader :status
 
-    def self.from_underlying_socket socket
-    end
+    def_delegators :@socket, :close, :closed?
+    def_delegators :@socket, :addr, :peeraddr, :setsockopt
 
     def acquire_ownership type
-      @socket.acquire_ownership type
-    end
-
-    def close
-      @socket.close
     end
 
     def connect host, port
@@ -22,7 +18,7 @@ module WEBSocket
     end
 
     def evented?
-      @socket.evented?
+      false
     end
 
     def initialize rhost, rport, lhost = nil, lport = nil
@@ -38,6 +34,15 @@ module WEBSocket
       frame.to_s
     end
 
+    def read_nonblock length, buffer = nil
+      buffer ||= ''
+      
+      @socket.read_nonblock length, buffer
+      frame = WebSocket::Frame::Incoming::Client.new :version => @handshake.version
+      frame << buffer
+      frame.to_s
+    end
+
     def readpartial length, buffer = nil
       s = @socket.readpartial length, buffer
       frame = WebSocket::Frame::Incoming::Client.new :version => @handshake.version
@@ -46,7 +51,6 @@ module WEBSocket
     end
 
     def release_ownership type
-      @socket.release_ownership type
     end
 
     def to_io
@@ -54,16 +58,19 @@ module WEBSocket
     end
 
     def wait_readable
-      @socket.wait_readable
     end
 
     def wait_writable
-      @socket.wait_writable
     end
 
     def write s
       frame = WebSocket::Frame::Outgoing::Client.new :version => @handshake.version, :data => s, :type => :text
       @socket.write frame.to_s
+    end
+
+    def write_nonblock s
+      frame = WebSocket::Frame::Outgoing::Client.new :version => @handshake.version, :data => s, :type => :text
+      @socket.write_nonblock frame.to_s
     end
 
     def << s
