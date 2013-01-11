@@ -1,3 +1,5 @@
+require "forwardable"
+
 require "websocket"
 require "uri"
 
