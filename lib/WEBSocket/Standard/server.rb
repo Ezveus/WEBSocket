@@ -94,7 +94,7 @@ module WEBSocket
     end
 
     def initialize hostname, port
-      @server = Celluloid::IO::TCPServer.new hostname, port
+      @server = TCPServer.new hostname, port
     end
 
     def accept
