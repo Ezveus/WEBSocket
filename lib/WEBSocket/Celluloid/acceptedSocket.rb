@@ -1,5 +1,5 @@
 module WEBSocket
-  class Socket < Base::Socket
+  class AcceptedSocket < Base::AcceptedSocket
     extend Forwardable
     attr_reader :status
 
@@ -14,10 +14,9 @@ module WEBSocket
       @socket.evented?
     end
 
-    def initialize rhost, rport, lhost = nil, lport = nil
+    def initialize socket
+      @socket = socket
       @status = :disconnected
-      @socket = Celluloid::IO::TCPSocket.new rhost, rport, lhost, lport
-      connect rhost, rport
     end
 
     def release_ownership type

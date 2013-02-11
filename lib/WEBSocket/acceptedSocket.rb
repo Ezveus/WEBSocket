@@ -1,15 +1,22 @@
 module WEBSocket
   module Base
-    class Socket
+    class AcceptedSocket
       def acquire_ownership type
       end
 
-      def connect host, port
-        @handshake = WebSocket::Handshake::Client.new :url => "ws://#{host}:#{port}"
-        @socket.write @handshake.to_s
+      def connect
+        @handshake = WebSocket::Handshake::Server.new
         msg = @socket.readpartial 4096
         @handshake << msg
-        @status = :connected
+        until @handshake.finished?
+          msg = @socket.readpartial 4096
+          @handshake << msg
+        end
+        if @handshake.valid?
+          @socket.write @handshake.to_s
+          @status = :connected
+        end
+        self
       end
 
       def evented?
@@ -17,13 +24,13 @@ module WEBSocket
       end
 
       def from_frame_to_text str
-        frame = WebSocket::Frame::Incoming::Client.new :version => @handshake.version
+        frame = WebSocket::Frame::Incoming::Server.new :version => @handshake.version
         frame << str
         frame.next.to_s
       end
 
       def from_text_to_frame str
-        frame = WebSocket::Frame::Outgoing::Client.new :version => @handshake.version, :data => str, :type => :text
+        frame = WebSocket::Frame::Outgoing::Server.new :version => @handshake.version, :data => str, :type => :text
         frame.to_s
       end
 
@@ -58,7 +65,8 @@ module WEBSocket
       end
 
       def write s
-        @socket.write from_text_to_frame(s)
+        s2 = from_text_to_frame(s)
+        @socket.write s2
       end
 
       def write_nonblock s
@@ -73,8 +81,8 @@ module WEBSocket
 end
 
 if defined? Celluloid::IO
-  require 'WEBSocket/Celluloid/socket'
+  require 'WEBSocket/Celluloid/acceptedSocket'
 else
   require 'socket'
-  require 'WEBSocket/Standard/socket'
+  require 'WEBSocket/Standard/acceptedSocket'
 end

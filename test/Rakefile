@@ -1,0 +1,15 @@
+task :standardServer do
+  ruby "standard/serverTest.rb"
+end
+
+task :standardClient do
+  ruby "standard/clientTest.rb"
+end
+
+task :celluloidServer do
+  ruby "celluloid/serverTest.rb"
+end
+
+task :celluloidClient do
+  ruby "celluloid/clientTest.rb"
+end
